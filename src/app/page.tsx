@@ -72,8 +72,8 @@ export default function Home() {
         { todos ?
           (
             todos.map(({ id, content }) => (
-              <div className="flex flex-row gap-2">
-                <div key={id} className="flex flex-row items-center p-[10px] rounded bg-violet-950 w-[280px]">
+              <div key={id} className="flex flex-row gap-2">
+                <div className="flex flex-row items-center p-[10px] rounded bg-violet-950 w-[280px]">
                   <p className="text-white">{content}</p>
                 </div>
                 <button onClick={() => deleteTodo(id)} className="bg-gray-50 p-[4px] rounded">
