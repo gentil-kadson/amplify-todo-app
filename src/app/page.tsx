@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { client } from "../app/service/api";
+import { client } from "./services/client";
 import type { Schema } from "../../amplify/data/resource";
 
 import { FaTrash } from 'react-icons/fa';
@@ -29,11 +29,6 @@ export default function Home() {
 
   }, []);
 
-
-  useEffect(() => {
-    console.log(typeof todos, todos,"todos");
-  }, [todos]);
-
     
   function deleteTodo(id: string) {
     client.models.Todo.delete({ id })
@@ -44,7 +39,6 @@ export default function Home() {
     console.log(todos, "createTodo");
     await client.models.Todo.create({
       content: content,
-      isDone: false,
     });
 
   }
