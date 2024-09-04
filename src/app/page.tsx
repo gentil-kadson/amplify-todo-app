@@ -63,7 +63,7 @@ export default function Home() {
         </button>
       </div>
       <div className="flex flex-col gap-4">
-        { todos ?
+        { todos &&
           (
             todos.map(({ id, content }) => (
               <div key={id} className="flex flex-row gap-2">
@@ -75,11 +75,6 @@ export default function Home() {
                 </button>
               </div>
             ))
-            
-          )
-          :
-          (
-            <p>Lista vazia</p>
           )
         }
       </div>
