@@ -3,19 +3,14 @@
 import { useEffect, useState } from "react";
 import { client } from "./services/client";
 import type { Schema } from "../../amplify/data/resource";
-import { FaTrash, FaPen } from "react-icons/fa";
+import { FaTrash, FaPen, FaSleigh } from "react-icons/fa";
 import { Amplify } from "aws-amplify";
 import outputs from "../../amplify_outputs.json";
 import EditTodoModal from "@/components/EditTodoModal";
 
-type Todo = {
-  id: string;
-  content: string;
-};
-
 type TodoModalProps = {
   show: boolean;
-  task: Todo;
+  todoId: string;
 };
 
 Amplify.configure(outputs);
@@ -23,9 +18,9 @@ Amplify.configure(outputs);
 export default function Home() {
   const [todos, setTodos] = useState<Schema["Todo"]["type"][]>([]);
   const [content, setContent] = useState<string>("");
-  const [editTaskModalInfo, setEditTaskModalInfo] = useState<TodoModalProps>({
+  const [editModalInfo, setEditModalInfo] = useState<TodoModalProps>({
     show: false,
-    task: { id: "", content: "" },
+    todoId: "",
   });
 
   useEffect(() => {
@@ -49,10 +44,28 @@ export default function Home() {
     });
   };
 
+  const editTodo = async () => {
+    if (!content) {
+      window.alert("O título da tarefa é obrigatório");
+    } else {
+      await client.models.Todo.update({
+        id: editModalInfo.todoId,
+        content: content,
+      }).then((response) => {
+        setEditModalInfo({ show: false, todoId: "" });
+      });
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 gap-10">
-      {editTaskModalInfo.show && (
-        <EditTodoModal todo={editTaskModalInfo.task} />
+      {editModalInfo.show && (
+        <EditTodoModal
+          onClick={editTodo}
+          setContent={setContent}
+          todoId={editModalInfo.todoId}
+          setEditModalInfo={setEditModalInfo}
+        />
       )}
       <div className="flex flex-col items-center justify-center gap-12">
         <h1 className="text-white text-4xl">Lista de Tarefas</h1>
@@ -81,9 +94,9 @@ export default function Home() {
               </div>
               <button
                 onClick={() =>
-                  setEditTaskModalInfo({
+                  setEditModalInfo({
                     show: true,
-                    task: { id: id, content: content as string },
+                    todoId: id,
                   })
                 }
                 className="bg-gray-50 p-[4px] rounded"
