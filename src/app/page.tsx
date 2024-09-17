@@ -8,9 +8,14 @@ import { Amplify } from "aws-amplify";
 import outputs from "../../amplify_outputs.json";
 import EditTodoModal from "@/components/EditTodoModal";
 
+type Todo = {
+  id: string;
+  content: string;
+};
+
 type TodoModalProps = {
   show: boolean;
-  todoId: string;
+  todo: Todo;
 };
 
 Amplify.configure(outputs);
@@ -20,7 +25,7 @@ export default function Home() {
   const [content, setContent] = useState<string>("");
   const [editModalInfo, setEditModalInfo] = useState<TodoModalProps>({
     show: false,
-    todoId: "",
+    todo: { id: "", content: "" },
   });
 
   useEffect(() => {
@@ -44,15 +49,19 @@ export default function Home() {
     });
   };
 
-  const editTodo = async () => {
-    if (!content) {
+  const resetEditModalInfo = () => {
+    setEditModalInfo({ show: false, todo: { content: "", id: "" } });
+  };
+
+  const editTodo = async (id: string, name: string) => {
+    if (!name) {
       window.alert("O título da tarefa é obrigatório");
     } else {
       await client.models.Todo.update({
-        id: editModalInfo.todoId,
-        content: content,
+        id: id,
+        content: name,
       }).then((response) => {
-        setEditModalInfo({ show: false, todoId: "" });
+        resetEditModalInfo();
       });
     }
   };
@@ -61,10 +70,9 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-24 gap-10">
       {editModalInfo.show && (
         <EditTodoModal
-          onClick={editTodo}
-          setContent={setContent}
-          todoId={editModalInfo.todoId}
-          setEditModalInfo={setEditModalInfo}
+          editInitialInfo={editModalInfo}
+          editTodo={editTodo}
+          resetModalFunction={resetEditModalInfo}
         />
       )}
       <div className="flex flex-col items-center justify-center gap-12">
@@ -96,7 +104,7 @@ export default function Home() {
                 onClick={() =>
                   setEditModalInfo({
                     show: true,
-                    todoId: id,
+                    todo: { id: id, content: content as string },
                   })
                 }
                 className="bg-gray-50 p-[4px] rounded"
